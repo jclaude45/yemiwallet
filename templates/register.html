@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Budget Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .select2-container--default .select2-selection--single {
+            height: 38px;
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 38px;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+        }
+        .country-flag {
+            width: 20px;
+            height: 15px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        .select2-results__option {
+            padding: 8px;
+        }
+        .select2-results__option img {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container">
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white py-3">
+                        <h4 class="mb-0">
+                            <i class="fas fa-user-plus me-2"></i>
+                            Créer un compte
+                        </h4>
+                    </div>
+                    <div class="card-body p-4">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+
+                        <form method="POST" class="needs-validation" novalidate>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="first_name" class="form-label">Prénom</label>
+                                    <input type="text" class="form-control" id="first_name" name="first_name" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="last_name" class="form-label">Nom</label>
+                                    <input type="text" class="form-control" id="last_name" name="last_name" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Nom d'utilisateur</label>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Adresse email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Numéro de téléphone</label>
+                                <div class="input-group">
+                                    <select class="form-select country-select" id="phone_country" name="phone_country" style="width: 200px;" required>
+                                        <option value="" disabled selected>Sélectionnez un pays</option>
+                                    </select>
+                                    <input type="tel" class="form-control" id="phone" name="phone" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="currency" class="form-label">Devise</label>
+                                <select class="form-select" id="currency" name="currency" required>
+                                    <option value="CDF">Franc Congolais (FC)</option>
+                                    <option value="XAF">Franc CFA (FCFA)</option>
+                                    <option value="EUR">Euro (€)</option>
+                                    <option value="USD">Dollar ($)</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Mot de passe</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="confirm_password" class="form-label">Confirmer le mot de passe</label>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-user-plus me-2"></i>
+                                    S'inscrire
+                                </button>
+                                <a href="{{ url_for('login') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-sign-in-alt me-2"></i>
+                                    Déjà inscrit ? Se connecter
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        // Liste des pays avec leurs codes et indicatifs
+        const countries = [
+            {code: 'AF', name: 'Afghanistan', dial_code: '+93'},
+            {code: 'ZA', name: 'Afrique du Sud', dial_code: '+27'},
+            {code: 'AL', name: 'Albanie', dial_code: '+355'},
+            {code: 'DZ', name: 'Algérie', dial_code: '+213'},
+            {code: 'DE', name: 'Allemagne', dial_code: '+49'},
+            {code: 'AD', name: 'Andorre', dial_code: '+376'},
+            {code: 'AO', name: 'Angola', dial_code: '+244'},
+            {code: 'SA', name: 'Arabie Saoudite', dial_code: '+966'},
+            {code: 'AR', name: 'Argentine', dial_code: '+54'},
+            {code: 'AM', name: 'Arménie', dial_code: '+374'},
+            {code: 'AU', name: 'Australie', dial_code: '+61'},
+            {code: 'AT', name: 'Autriche', dial_code: '+43'},
+            {code: 'BE', name: 'Belgique', dial_code: '+32'},
+            {code: 'BJ', name: 'Bénin', dial_code: '+229'},
+            {code: 'BI', name: 'Burundi', dial_code: '+257'},
+            {code: 'CM', name: 'Cameroun', dial_code: '+237'},
+            {code: 'CA', name: 'Canada', dial_code: '+1'},
+            {code: 'TD', name: 'Tchad', dial_code: '+235'},
+            {code: 'CN', name: 'Chine', dial_code: '+86'},
+            {code: 'CG', name: 'Congo', dial_code: '+242'},
+            {code: 'CD', name: 'RD Congo', dial_code: '+243'},
+            {code: 'KR', name: 'Corée du Sud', dial_code: '+82'},
+            {code: 'CI', name: "Côte d'Ivoire", dial_code: '+225'},
+            {code: 'DK', name: 'Danemark', dial_code: '+45'},
+            {code: 'DJ', name: 'Djibouti', dial_code: '+253'},
+            {code: 'EG', name: 'Égypte', dial_code: '+20'},
+            {code: 'AE', name: 'Émirats Arabes Unis', dial_code: '+971'},
+            {code: 'ES', name: 'Espagne', dial_code: '+34'},
+            {code: 'US', name: 'États-Unis', dial_code: '+1'},
+            {code: 'ET', name: 'Éthiopie', dial_code: '+251'},
+            {code: 'FI', name: 'Finlande', dial_code: '+358'},
+            {code: 'FR', name: 'France', dial_code: '+33'},
+            {code: 'GA', name: 'Gabon', dial_code: '+241'},
+            {code: 'GM', name: 'Gambie', dial_code: '+220'},
+            {code: 'GH', name: 'Ghana', dial_code: '+233'},
+            {code: 'GR', name: 'Grèce', dial_code: '+30'},
+            {code: 'GN', name: 'Guinée', dial_code: '+224'},
+            {code: 'HT', name: 'Haïti', dial_code: '+509'},
+            {code: 'IN', name: 'Inde', dial_code: '+91'},
+            {code: 'ID', name: 'Indonésie', dial_code: '+62'},
+            {code: 'IQ', name: 'Irak', dial_code: '+964'},
+            {code: 'IR', name: 'Iran', dial_code: '+98'},
+            {code: 'IE', name: 'Irlande', dial_code: '+353'},
+            {code: 'IS', name: 'Islande', dial_code: '+354'},
+            {code: 'IL', name: 'Israël', dial_code: '+972'},
+            {code: 'IT', name: 'Italie', dial_code: '+39'},
+            {code: 'JP', name: 'Japon', dial_code: '+81'},
+            {code: 'JO', name: 'Jordanie', dial_code: '+962'},
+            {code: 'KZ', name: 'Kazakhstan', dial_code: '+7'},
+            {code: 'KE', name: 'Kenya', dial_code: '+254'},
+            {code: 'KW', name: 'Koweït', dial_code: '+965'},
+            {code: 'LB', name: 'Liban', dial_code: '+961'},
+            {code: 'LR', name: 'Libéria', dial_code: '+231'},
+            {code: 'LY', name: 'Libye', dial_code: '+218'},
+            {code: 'LU', name: 'Luxembourg', dial_code: '+352'},
+            {code: 'MG', name: 'Madagascar', dial_code: '+261'},
+            {code: 'MY', name: 'Malaisie', dial_code: '+60'},
+            {code: 'ML', name: 'Mali', dial_code: '+223'},
+            {code: 'MA', name: 'Maroc', dial_code: '+212'},
+            {code: 'MR', name: 'Mauritanie', dial_code: '+222'},
+            {code: 'MX', name: 'Mexique', dial_code: '+52'},
+            {code: 'MC', name: 'Monaco', dial_code: '+377'},
+            {code: 'NE', name: 'Niger', dial_code: '+227'},
+            {code: 'NG', name: 'Nigeria', dial_code: '+234'},
+            {code: 'NO', name: 'Norvège', dial_code: '+47'},
+            {code: 'NZ', name: 'Nouvelle-Zélande', dial_code: '+64'},
+            {code: 'UG', name: 'Ouganda', dial_code: '+256'},
+            {code: 'PK', name: 'Pakistan', dial_code: '+92'},
+            {code: 'NL', name: 'Pays-Bas', dial_code: '+31'},
+            {code: 'PH', name: 'Philippines', dial_code: '+63'},
+            {code: 'PL', name: 'Pologne', dial_code: '+48'},
+            {code: 'PT', name: 'Portugal', dial_code: '+351'},
+            {code: 'QA', name: 'Qatar', dial_code: '+974'},
+            {code: 'RO', name: 'Roumanie', dial_code: '+40'},
+            {code: 'GB', name: 'Royaume-Uni', dial_code: '+44'},
+            {code: 'RU', name: 'Russie', dial_code: '+7'},
+            {code: 'RW', name: 'Rwanda', dial_code: '+250'},
+            {code: 'SN', name: 'Sénégal', dial_code: '+221'},
+            {code: 'RS', name: 'Serbie', dial_code: '+381'},
+            {code: 'SL', name: 'Sierra Leone', dial_code: '+232'},
+            {code: 'SG', name: 'Singapour', dial_code: '+65'},
+            {code: 'SK', name: 'Slovaquie', dial_code: '+421'},
+            {code: 'SI', name: 'Slovénie', dial_code: '+386'},
+            {code: 'SO', name: 'Somalie', dial_code: '+252'},
+            {code: 'SD', name: 'Soudan', dial_code: '+249'},
+            {code: 'LK', name: 'Sri Lanka', dial_code: '+94'},
+            {code: 'SE', name: 'Suède', dial_code: '+46'},
+            {code: 'CH', name: 'Suisse', dial_code: '+41'},
+            {code: 'SY', name: 'Syrie', dial_code: '+963'},
+            {code: 'TZ', name: 'Tanzanie', dial_code: '+255'},
+            {code: 'TH', name: 'Thaïlande', dial_code: '+66'},
+            {code: 'TG', name: 'Togo', dial_code: '+228'},
+            {code: 'TN', name: 'Tunisie', dial_code: '+216'},
+            {code: 'TR', name: 'Turquie', dial_code: '+90'},
+            {code: 'UA', name: 'Ukraine', dial_code: '+380'},
+            {code: 'UY', name: 'Uruguay', dial_code: '+598'},
+            {code: 'VE', name: 'Venezuela', dial_code: '+58'},
+            {code: 'VN', name: 'Vietnam', dial_code: '+84'},
+            {code: 'YE', name: 'Yémen', dial_code: '+967'},
+            {code: 'ZM', name: 'Zambie', dial_code: '+260'},
+            {code: 'ZW', name: 'Zimbabwe', dial_code: '+263'}
+        ];
+
+        $(document).ready(function() {
+            // Initialisation de Select2
+            $('.country-select').select2({
+                templateResult: formatCountry,
+                templateSelection: formatCountry,
+                escapeMarkup: function(m) { return m; }
+            });
+
+            // Ajout des options de pays
+            countries.forEach(country => {
+                const option = new Option(
+                    `<img src="https://flagcdn.com/w20/${country.code.toLowerCase()}.png" class="country-flag"> ${country.name} (${country.dial_code})`,
+                    country.code,
+                    false,
+                    false
+                );
+                $('.country-select').append(option);
+            });
+
+            // Formatage des options de pays
+            function formatCountry(country) {
+                if (!country.id) return country.text;
+                const countryData = countries.find(c => c.code === country.id);
+                if (!countryData) return country.text;
+                return `<img src="https://flagcdn.com/w20/${countryData.code.toLowerCase()}.png" class="country-flag"> ${countryData.name} (${countryData.dial_code})`;
+            }
+
+            // Formatage automatique du numéro de téléphone
+            $('#phone').on('input', function() {
+                var number = $(this).val().replace(/\D/g, '');
+                const countryCode = $('#phone_country').val();
+                const countryData = countries.find(c => c.code === countryCode);
+                
+                if (countryData) {
+                    // Formatage selon le pays
+                    if (countryCode === 'CD') { // RDC
+                        if (number.length > 9) number = number.substr(0, 9);
+                        if (number.length > 3) number = number.substr(0, 3) + ' ' + number.substr(3);
+                        if (number.length > 7) number = number.substr(0, 7) + ' ' + number.substr(7);
+                    } else if (countryCode === 'FR') { // France
+                        if (number.length > 9) number = number.substr(0, 9);
+                        if (number.length > 2) number = number.substr(0, 2) + ' ' + number.substr(2);
+                        if (number.length > 4) number = number.substr(0, 5) + ' ' + number.substr(5);
+                        if (number.length > 6) number = number.substr(0, 8) + ' ' + number.substr(8);
+                    }
+                    // Ajoutez d'autres formats selon les pays...
+                }
+                
+                $(this).val(number);
+            });
+
+            // Validation du formulaire
+            $('form').on('submit', function(e) {
+                if (!this.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                $(this).addClass('was-validated');
+            });
+
+            // Validation de la confirmation du mot de passe
+            $('#confirm_password').on('input', function() {
+                if ($(this).val() !== $('#password').val()) {
+                    $(this).get(0).setCustomValidity('Les mots de passe ne correspondent pas');
+                } else {
+                    $(this).get(0).setCustomValidity('');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

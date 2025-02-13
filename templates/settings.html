@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paramètres - {{ app_name }}</title>
+    <meta name="description" content="{{ app_description }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="{{ url_for('index') }}" class="sidebar-brand">
+                    <i class="fas fa-wallet"></i>
+                    {{ app_name }}
+                </a>
+                <button class="sidebar-toggle d-lg-none">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <a href="{{ url_for('index') }}" class="sidebar-item {{ 'active' if request.endpoint == 'index' }}">
+                    <i class="fas fa-chart-line"></i>
+                    Tableau de bord
+                </a>
+                <a href="{{ url_for('savings') }}" class="sidebar-item {{ 'active' if request.endpoint == 'savings' }}">
+                    <i class="fas fa-piggy-bank"></i>
+                    Comptes épargne
+                </a>
+                <div class="mt-auto">
+                    <a href="{{ url_for('settings') }}" class="sidebar-item {{ 'active' if request.endpoint == 'settings' }}">
+                        <i class="fas fa-cog"></i>
+                        Paramètres
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="sidebar-item">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Déconnexion
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Navbar -->
+            <nav class="navbar">
+                <div class="navbar-content">
+                    <button class="sidebar-toggle d-lg-none">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Content -->
+            <div class="container-fluid mt-4">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Informations du compte -->
+                <div class="card mb-4">
+                    <div class="card-header bg-transparent py-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user me-2 text-primary"></i>
+                            Informations du compte
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ url_for('update_settings') }}" method="POST">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label for="first_name" class="form-label">Prénom</label>
+                                    <input type="text" class="form-control" id="first_name" name="first_name" 
+                                           value="{{ current_user.first_name }}" required>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label for="last_name" class="form-label">Nom</label>
+                                    <input type="text" class="form-control" id="last_name" name="last_name" 
+                                           value="{{ current_user.last_name }}" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="email" class="form-label">Adresse email</label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="{{ current_user.email }}" required>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="phone" class="form-label">Numéro de téléphone</label>
+                                <div class="input-group">
+                                    <select class="form-select" id="phone_country" name="phone_country" style="max-width: 200px;" required>
+                                        <option value="CD" data-code="+243" {{ 'selected' if current_user.phone_country == 'CD' }}>RD Congo (+243)</option>
+                                        <option value="CG" data-code="+242" {{ 'selected' if current_user.phone_country == 'CG' }}>Congo (+242)</option>
+                                        <option value="CM" data-code="+237" {{ 'selected' if current_user.phone_country == 'CM' }}>Cameroun (+237)</option>
+                                        <option value="GA" data-code="+241" {{ 'selected' if current_user.phone_country == 'GA' }}>Gabon (+241)</option>
+                                        <option value="CF" data-code="+236" {{ 'selected' if current_user.phone_country == 'CF' }}>Centrafrique (+236)</option>
+                                        <option value="TD" data-code="+235" {{ 'selected' if current_user.phone_country == 'TD' }}>Tchad (+235)</option>
+                                        <option value="FR" data-code="+33" {{ 'selected' if current_user.phone_country == 'FR' }}>France (+33)</option>
+                                        <option value="BE" data-code="+32" {{ 'selected' if current_user.phone_country == 'BE' }}>Belgique (+32)</option>
+                                    </select>
+                                    <input type="tel" class="form-control" id="phone" name="phone" 
+                                           value="{{ current_user.phone }}" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="currency" class="form-label">Devise</label>
+                                <select class="form-select" id="currency" name="currency" required>
+                                    <option value="CDF" {{ 'selected' if current_user.currency == 'CDF' }}>Franc Congolais (FC)</option>
+                                    <option value="XAF" {{ 'selected' if current_user.currency == 'XAF' }}>Franc CFA (FCFA)</option>
+                                    <option value="EUR" {{ 'selected' if current_user.currency == 'EUR' }}>Euro (€)</option>
+                                    <option value="USD" {{ 'selected' if current_user.currency == 'USD' }}>Dollar ($)</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                Enregistrer les modifications
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Historique des modifications -->
+                <div class="card">
+                    <div class="card-header bg-transparent py-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-history me-2 text-primary"></i>
+                            Historique des modifications
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Action</th>
+                                        <th>Détails</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for entry in history %}
+                                    <tr>
+                                        <td>{{ entry.timestamp.strftime('%d/%m/%Y %H:%M') }}</td>
+                                        <td>{{ entry.action }}</td>
+                                        <td>{{ entry.details }}</td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center py-4">
+                                            <i class="fas fa-history fa-2x mb-3 text-muted"></i>
+                                            <p class="mb-0 text-muted">Aucune modification pour le moment</p>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Toggle Sidebar
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggles = document.querySelectorAll('.sidebar-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            
+            sidebarToggles.forEach(toggle => {
+                toggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                });
+            });
+
+            // Formatage automatique du numéro de téléphone
+            $('#phone').on('input', function() {
+                var number = $(this).val().replace(/\D/g, '');
+                var countryCode = $('#phone_country option:selected').data('code');
+                
+                // Formatage selon le pays
+                if (countryCode === '+243') { // RDC
+                    if (number.length > 9) number = number.substr(0, 9);
+                    if (number.length > 3) number = number.substr(0, 3) + ' ' + number.substr(3);
+                    if (number.length > 7) number = number.substr(0, 7) + ' ' + number.substr(7);
+                }
+                
+                $(this).val(number);
+            });
+        });
+    </script>
+</body>
+</html>

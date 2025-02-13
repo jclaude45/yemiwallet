@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord - {{ app_name }}</title>
+    <meta name="description" content="{{ app_description }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .balance-card {
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .income-card {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .expense-card {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .savings-card {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+        .available-card {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .available-card.negative {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .transaction-form {
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .transaction-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .savings-progress {
+            height: 10px;
+            border-radius: 5px;
+        }
+        .icon-stats {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-size: 18px;
+        }
+        .bg-light-primary {
+            background-color: #cce5ff;
+        }
+        .bg-light-success {
+            background-color: #d4edda;
+        }
+        .bg-light-warning {
+            background-color: #f8d7da;
+        }
+        .bg-light-info {
+            background-color: #cce5ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="{{ url_for('index') }}" class="sidebar-brand">
+                    <i class="fas fa-wallet"></i>
+                    {{ app_name }}
+                </a>
+                <button class="sidebar-toggle d-lg-none">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <a href="{{ url_for('index') }}" class="sidebar-item {{ 'active' if request.endpoint == 'index' }}">
+                    <i class="fas fa-chart-line"></i>
+                    Tableau de bord
+                </a>
+                <a href="{{ url_for('savings') }}" class="sidebar-item {{ 'active' if request.endpoint == 'savings' }}">
+                    <i class="fas fa-piggy-bank"></i>
+                    Comptes épargne
+                </a>
+                <div class="mt-auto">
+                    <a href="{{ url_for('settings') }}" class="sidebar-item {{ 'active' if request.endpoint == 'settings' }}">
+                        <i class="fas fa-cog"></i>
+                        Paramètres
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="sidebar-item">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Déconnexion
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Navbar -->
+            <nav class="navbar">
+                <div class="navbar-content">
+                    <button class="sidebar-toggle d-lg-none">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Content -->
+            <div class="container-fluid mt-4">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Stats Cards -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="icon-stats bg-light-primary">
+                                        <i class="fas fa-wallet fa-lg"></i>
+                                    </div>
+                                    <div>
+                                        <p class="card-text text-muted mb-0">Solde disponible</p>
+                                        <h4 class="fw-bolder mb-0">{{ "%.2f"|format(available_balance) }} {{ currency }}</h4>
+                                    </div>
+                                </div>
+                                <small class="text-muted">Après déduction de l'épargne</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="icon-stats bg-light-success">
+                                        <i class="fas fa-arrow-up fa-lg"></i>
+                                    </div>
+                                    <div>
+                                        <p class="card-text text-muted mb-0">Total des entrées</p>
+                                        <h4 class="fw-bolder mb-0">{{ "%.2f"|format(total_income) }} {{ currency }}</h4>
+                                    </div>
+                                </div>
+                                <small class="text-success">
+                                    <i class="fas fa-arrow-up"></i> 
+                                    {{ income_percentage }}% ce mois
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="icon-stats bg-light-warning">
+                                        <i class="fas fa-arrow-down fa-lg"></i>
+                                    </div>
+                                    <div>
+                                        <p class="card-text text-muted mb-0">Total des dépenses</p>
+                                        <h4 class="fw-bolder mb-0">{{ "%.2f"|format(total_expenses) }} {{ currency }}</h4>
+                                    </div>
+                                </div>
+                                <small class="text-warning">
+                                    <i class="fas fa-arrow-down"></i>
+                                    {{ expense_percentage }}% ce mois
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="icon-stats bg-light-info">
+                                        <i class="fas fa-piggy-bank fa-lg"></i>
+                                    </div>
+                                    <div>
+                                        <p class="card-text text-muted mb-0">Total épargné</p>
+                                        <h4 class="fw-bolder mb-0">{{ "%.2f"|format(total_savings) }} {{ currency }}</h4>
+                                    </div>
+                                </div>
+                                <small class="text-info">
+                                    <i class="fas fa-chart-line"></i>
+                                    {{ savings_percentage }}% d'épargne
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transactions -->
+                <div class="card">
+                    <div class="card-header bg-transparent py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-exchange-alt me-2 text-primary"></i>
+                                Transactions récentes
+                            </h5>
+                            <div>
+                                <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#newTransactionModal">
+                                    <i class="fas fa-plus-circle me-1"></i>
+                                    Nouvelle transaction
+                                </button>
+                                <a href="{{ url_for('export_transactions') }}" class="btn btn-light">
+                                    <i class="fas fa-file-export me-1"></i>
+                                    Exporter
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Description</th>
+                                        <th class="text-end">Montant</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for transaction in transactions %}
+                                    <tr>
+                                        <td>{{ transaction.transaction_date.strftime('%d/%m/%Y') }}</td>
+                                        <td>
+                                            <span class="badge {% if transaction.transaction_type == 'income' %}bg-success
+                                                             {% elif transaction.transaction_type == 'expense' %}bg-warning
+                                                             {% elif transaction.transaction_type == 'SAVINGS_DEPOSIT' %}bg-info
+                                                             {% endif %}">
+                                                {% if transaction.transaction_type == 'income' %}Entrée
+                                                {% elif transaction.transaction_type == 'expense' %}Dépense
+                                                {% elif transaction.transaction_type == 'SAVINGS_DEPOSIT' %}Épargne
+                                                {% endif %}
+                                            </span>
+                                        </td>
+                                        <td>{{ transaction.description }}</td>
+                                        <td class="text-end {% if transaction.type == 'income' or transaction.type == 'SAVINGS_DEPOSIT' %}text-success{% else %}text-danger{% endif %}">
+                                            {{ "%.2f"|format(transaction.amount) }} {{ currency }}
+                                        </td>
+                                        <td class="text-end">
+                                            <button type="button" class="btn btn-sm btn-light me-1" 
+                                                    onclick="editTransaction('{{ transaction.id }}')">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-light" 
+                                                    onclick="deleteTransaction('{{ transaction.id }}')">
+                                                <i class="fas fa-trash-alt text-danger"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4">
+                                            <i class="fas fa-inbox fa-2x mb-3 text-muted"></i>
+                                            <p class="mb-0 text-muted">Aucune transaction pour le moment</p>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nouvelle Transaction -->
+    <div class="modal fade" id="newTransactionModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus-circle me-2 text-primary"></i>
+                        Nouvelle Transaction
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ url_for('add_transaction') }}" method="POST">
+                    <div class="modal-body">
+                        <div class="mb-4">
+                            <label for="type" class="form-label">Type de transaction</label>
+                            <select class="form-select" id="type" name="type" required>
+                                <option value="income">Entrée</option>
+                                <option value="expense">Dépense</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label for="amount" class="form-label">Montant</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="amount" name="amount" 
+                                       step="0.01" min="0.01" required>
+                                <span class="input-group-text">{{ currency }}</span>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="description" class="form-label">Description</label>
+                            <input type="text" class="form-control" id="description" name="description" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="date" class="form-label">Date</label>
+                            <input type="date" class="form-control" id="date" name="date" 
+                                   value="{{ today.strftime('%Y-%m-%d') }}" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus-circle me-1"></i>
+                            Ajouter
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function editTransaction(id) {
+            // TODO: Implement edit functionality
+            alert('Édition de la transaction ' + id);
+        }
+
+        function deleteTransaction(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette transaction ?')) {
+                window.location.href = `/delete_transaction/${id}`;
+            }
+        }
+
+        // Toggle Sidebar
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggles = document.querySelectorAll('.sidebar-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            
+            sidebarToggles.forEach(toggle => {
+                toggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
