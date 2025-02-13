@@ -1,13 +1,14 @@
-# Gestionnaire de Budget
+# Yemi Wallet
 
 Une application web simple pour gérer vos entrées et dépenses personnelles.
 
-## FonctionnalitésUne erreur s'est produite lors du chargement de la page.
+## Fonctionnalités
 
 - Ajout d'entrées et de dépenses
 - Visualisation du solde total
 - Historique des transactions
 - Interface responsive et moderne
+- Gestion des comptes d'épargne
 
 ## Installation
 
@@ -18,10 +19,10 @@ pip install -r requirements.txt
 
 2. Lancez l'application :
 ```bash
-python app.py
+python run.py
 ```
 
-3. Ouvrez votre navigateur et accédez à `http://localhost:5000`
+3. Ouvrez votre navigateur et accédez à `http://localhost:4999`
 
 ## Utilisation
 
@@ -30,3 +31,4 @@ python app.py
 - Ajoutez une description et le montant
 - Les transactions apparaîtront dans le tableau en dessous
 - Le solde, le total des entrées et des dépenses sont mis à jour automatiquement
+- Gérez vos comptes d'épargne dans la section dédiée
