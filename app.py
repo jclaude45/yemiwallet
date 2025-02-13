@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dev'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///budget.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///' + os.path.join(os.path.abspath(os.path.dirname(__file__)), 'budget.db'))
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['APP_NAME'] = 'Yemi Wallet'
 app.config['APP_TITLE'] = 'Yemi Wallet - Votre gestionnaire financier'
@@ -959,10 +959,11 @@ def add_to_savings(savings_id):
         
     return redirect(url_for('savings'))
 
+with app.app_context():
+    db.create_all()
+
 if __name__ == '__main__':
-    # Supprimer la base de données existante
-    if os.path.exists('budget.db'):
-        os.remove('budget.db')
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 4999)))
         logger.info("Base de données existante supprimée")
     
     with app.app_context():
