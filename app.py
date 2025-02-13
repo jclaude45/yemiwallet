@@ -962,53 +962,11 @@ def add_to_savings(savings_id):
 with app.app_context():
     db.create_all()
 
+# Création des tables au démarrage de l'application
+with app.app_context():
+    db.create_all()
+    logger.info("Tables de la base de données créées")
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 4999)))
-        logger.info("Base de données existante supprimée")
-    
-    with app.app_context():
-        # Supprimer toutes les tables existantes
-        db.drop_all()
-        logger.info("Toutes les tables ont été supprimées")
-        
-        # Créer toutes les tables
-        db.create_all()
-        logger.info("Nouvelles tables créées")
-        
-        # Créer un utilisateur de test
-        test_user = User(
-            username='test',
-            email='test@example.com',
-            first_name='Test',
-            last_name='User',
-            phone='1234567890',
-            phone_country='FR',
-            currency='EUR'
-        )
-        test_user.set_password('test123')
-        db.session.add(test_user)
-        
-        # Créer un compte d'épargne de test
-        test_savings = SavingsAccount(
-            name='Épargne Vacances',
-            percentage=10.0,
-            current_amount=1000.0,
-            target_amount=5000.0,
-            target_date=date(2025, 12, 31),
-            user_id=1,
-            is_active=True,
-            is_archived=False
-        )
-        db.session.add(test_savings)
-        
-        db.session.commit()
-        logger.info("Utilisateur et compte d'épargne de test créés")
-        
-        # Vérifier la structure de la table User
-        inspector = db.inspect(db.engine)
-        columns = inspector.get_columns('user')
-        logger.info("Structure de la table User:")
-        for column in columns:
-            logger.info(f"- {column['name']}: {column['type']}")
-    
-    app.run(host='127.0.0.1', port=4964, debug=True)
+    port = int(os.environ.get('PORT', 4999))
+    app.run(host='0.0.0.0', port=port)
